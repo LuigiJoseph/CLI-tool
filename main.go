@@ -2,13 +2,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 //scan given a apath craws it and its subfolders
 //searching for Git repos
 
 func scan(path string) {
-	print("scan")
+	fmt.Printf("Found folders: \n\n")
+	repositories := recursiveScanFolder(folder)
+	filepath := getDotFilePath()
+	addNewSliceElementsToFile(filePath, repositories)
+	fmt.Printf("\n\nSuccessfully added\n\n")
 }
 
 // stats generates a nice graph of your Git Contributions
