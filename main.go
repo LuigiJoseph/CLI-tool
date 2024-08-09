@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/user"
@@ -63,6 +65,8 @@ func recursiveScanFolder(folder string) []string {
 	return scanGitFolders(make([]string, 0), folder)
 }
 
+// returns dotfile for the repos list
+// creates and the enclosing folder if it does not exist
 func getDotFilePath() string {
 	usr, err := user.Current()
 	if err != nil {
@@ -71,6 +75,33 @@ func getDotFilePath() string {
 	dotFile := usr.HomeDir + "/.gogitlocalstats"
 
 	return dotFile
+}
+
+// given a slice of strings representing paths, stores them
+// to the filesystem
+func addNewSliceElementsToFile(filePath string, newRepos []string) {
+	existingRepos := parseFileLinesToSlice(filePath)
+	repos := joinSlices(newRepos, existingRepos)
+	dumpStringSliceToFile(repos, filePath)
+}
+
+// given a file path string, gets the content
+// of each line and parses to a slice of strings
+func parseFileLinesToSlice(filePath string) []string {
+	f := openFile(filePath)
+	defer f.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		if err != io.EOF {
+			panic(err)
+		}
+	}
+	return lines
 }
 
 // stats generates a nice graph of your Git Contributions
