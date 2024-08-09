@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"strings"
 )
 
@@ -56,6 +57,20 @@ func scanGitFolders(folders []string, folder string) []string {
 		}
 	}
 	return folders
+}
+
+func recursiveScanFolder(folder string) []string {
+	return scanGitFolders(make([]string, 0), folder)
+}
+
+func getDotFilePath() string {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dotFile := usr.HomeDir + "/.gogitlocalstats"
+
+	return dotFile
 }
 
 // stats generates a nice graph of your Git Contributions
