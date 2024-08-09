@@ -121,6 +121,28 @@ func openFile(filePath string) *os.File {
 	return f
 }
 
+// adds the element of the 'new' slice
+// into the 'existing' only if not already there
+func joinSlices(new []string, existing []string) []string {
+	for _, i := range new {
+		if !sliceContains(existing, i) {
+			existing = append(existing, i)
+		}
+	}
+	return existing
+}
+
+func sliceContains(slice []string, value string) bool {
+	//the _ returns the index which we dont care about,
+	//we only care about the values
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
 // stats generates a nice graph of your Git Contributions
 func stats(email string) {
 	print("stats")
