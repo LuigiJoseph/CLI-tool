@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sort"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 const outOfRange = 99999
 const daysInLastSixMonths = 183
 const weeksInLastSixMonths = 26
+
+type column []int
 
 func stats(email string) {
 	commits := processRepositories(email)
@@ -160,4 +163,30 @@ func buildCols(keys []int, commits map[int]int) map[int]column {
 
 	return cols
 
+}
+
+// printCells  prints the cells of the graphs
+func printCells(cols map[int]column) {
+	printMonths()
+	for j := 6; j >= 0; j-- {
+		for i := weeksInLastSixMonths + 1; i >= 0; i-- {
+			if i == weeksInLastSixMonths+1 {
+				printDayCol(j)
+			}
+			if col, ok := cols[i]; ok {
+				//special cae today
+				if i == 0 && j == calcOffSet()-1 {
+					printCell(col[j], true)
+					continue
+				} else {
+					if len(col) > j {
+						printCell(col[j], false)
+						continue
+					}
+				}
+			}
+			printCell(0, false)
+		}
+		fmt.Printf("\n")
+	}
 }
