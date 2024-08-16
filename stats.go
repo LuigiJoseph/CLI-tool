@@ -212,3 +212,18 @@ func printMonths() {
 	}
 	fmt.Printf("\n")
 }
+
+// printDayCol given the dya number (0 is sunday) prints the day name,
+// alternating the rows (prints just 2,4,6)
+func printDayCol(day int) {
+	out := "   "
+	switch day {
+	case 1:
+		out = " Mon "
+	case 3:
+		out = " Wed "
+	case 5:
+		out = " Fri "
+	}
+	fmt.Printf(out)
+}
