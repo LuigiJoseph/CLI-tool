@@ -137,3 +137,27 @@ func sortMapIntoSlice(m map[int]int) []int {
 
 	return keys
 }
+
+// buildCols generates a map with rows and columns ready
+// to be called by PrintCells to be printed on screen
+func buildCols(keys []int, commits map[int]int) map[int]column {
+	cols := make(map[int]column)
+	col := column{}
+
+	for _, k := range keys {
+		week := int(k / 7) //26,25....1
+		dayinweek := k % 7 // 0,1,2,3,4,5,6,
+
+		if dayinweek == 0 { //reset
+			col = column{}
+		}
+		col = append(col, commits[k])
+
+		if dayinweek == 6 {
+			cols[week] = col
+		}
+	}
+
+	return cols
+
+}
