@@ -149,11 +149,6 @@ func dumpStringSliceToFile(repos []string, filePath string) {
 	ioutil.WriteFile(filePath, []byte(content), 0755)
 }
 
-// stats generates a nice graph of your Git Contributions
-func stats(email string) {
-	print("stats")
-}
-
 func main() {
 	var folder string
 	var email string
