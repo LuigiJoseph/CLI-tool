@@ -117,6 +117,8 @@ func calcOffSet() int {
 	return offset
 }
 
-func printCommitsStats(commits []string) {
-
+func printCommitsStats(commits map[int]int) {
+	keys := sortMapIntoSlice(commits)
+	cols := buildCols(keys, commits)
+	printCells(cols)
 }
