@@ -20,22 +20,23 @@ func stats(email string) {
 	printCommitsStats(commits)
 }
 
-// given the user emai, return the commits he made in the past 6 months
-func processRepositories(email string) map[int]int {
-	filepath := getDotFilePath()
-	repos := parseFileLinesToSlice(filepath)
-	daysInMap := daysInLastSixMonths
+func getBeginningOfDay(t time.Time) time.Time {
+	year, month, day := t.Date()
+	startOfDay := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+	return startOfDay
+}
 
-	commits := make(map[int]int, daysInMap)
-	for i := daysInMap; i > 0; i-- {
-		commits[i] = 0
+func countDaysSinceDate(date time.Time) int {
+	days := 0
+	now := getBeginningOfDay(time.Now())
+	for date.Before(now) {
+		date = date.Add(time.Hour * 24)
+		days++
+		if days > daysInLastSixMonths {
+			return outOfRange
+		}
 	}
-
-	for _, path := range repos {
-		commits = fileCommits(email, path, commits)
-	}
-
-	return commits
+	return days
 }
 
 // given a repo found in "path", gets the commits
@@ -79,23 +80,22 @@ func fileCommits(email string, path string, commits map[int]int) map[int]int {
 	return commits
 }
 
-func getBeginningOfDay(t time.Time) time.Time {
-	year, month, day := t.Date()
-	startOfDay := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
-	return startOfDay
-}
+// given the user emai, return the commits he made in the past 6 months
+func processRepositories(email string) map[int]int {
+	filepath := getDotFilePath()
+	repos := parseFileLinesToSlice(filepath)
+	daysInMap := daysInLastSixMonths
 
-func countDaysSinceDate(date time.Time) int {
-	days := 0
-	now := getBeginningOfDay(time.Now())
-	for date.Before(now) {
-		date = date.Add(time.Hour * 24)
-		days++
-		if days > daysInLastSixMonths {
-			return outOfRange
-		}
+	commits := make(map[int]int, daysInMap)
+	for i := daysInMap; i > 0; i-- {
+		commits[i] = 0
 	}
-	return days
+
+	for _, path := range repos {
+		commits = fileCommits(email, path, commits)
+	}
+
+	return commits
 }
 
 func calcOffSet() int {
@@ -119,6 +119,39 @@ func calcOffSet() int {
 		offset = 1
 	}
 	return offset
+}
+
+// given a cell value prints it with a different format
+// based on the value amount, and on the "today" flag
+func printCell(val int, today bool) {
+	escape := "\033[0;37;30m]"
+	switch {
+	case val > 0 && val < 5:
+		escape = "\033[1;30;47m"
+	case val >= 5 && val < 10:
+		escape = "\033[1;30;43m"
+	case val >= 10:
+		escape = "\033[1;30;42m"
+	}
+
+	if today {
+		escape = "\033[1;37;45m"
+	}
+
+	if val == 0 {
+		fmt.Printf(escape + "  - " + "\033[0m")
+		return
+	}
+
+	str := "  %d"
+	switch {
+	case val >= 10:
+		str = " %d "
+	case val >= 100:
+		str = "%d "
+	}
+
+	fmt.Printf(escape+str+"\033[0m", val)
 }
 
 func printCommitsStats(commits map[int]int) {
@@ -226,37 +259,4 @@ func printDayCol(day int) {
 		out = " Fri "
 	}
 	fmt.Printf(out)
-}
-
-// given a cell value prints it with a different format
-// based on the value amount, and on the "today" flag
-func printCell(val int, today bool) {
-	escape := "\033[0;37;30m]"
-	switch {
-	case val > 0 && val < 5:
-		escape = "\033[1;30;47m"
-	case val >= 5 && val < 10:
-		escape = "\033[1;30;43m"
-	case val >= 10:
-		escape = "\033[1;30;42m"
-	}
-
-	if today {
-		escape = "\033[1;37;45m"
-	}
-
-	if val == 0 {
-		fmt.Printf(escape + "  - " + "\033[0m")
-		return
-	}
-
-	str := "  %d"
-	switch {
-	case val >= 10:
-		str = " %d "
-	case val >= 100:
-		str = "%d "
-	}
-
-	fmt.Printf(escape+str+"\033[0m", val)
 }
